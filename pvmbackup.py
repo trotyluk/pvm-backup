@@ -48,9 +48,6 @@ def check_port(ip,port):
     except socket.error:
         print(f"Port {port} closed.")
         result=False
-
-        
-    
     return result
 
 #//TODO create send archive
@@ -91,8 +88,9 @@ def getting_args():
     parser.add_argument("-i", "--ip", type=str)
     # adding erase flag -- erase local backups after transfer
     parser.add_argument("-e", "--erase", action="store_true")
-    # transfer backup to specified location
+    # adding send flag -- transfer backup to specified location
     parser.add_argument("-s", "--send", action="store_true")
+    # addinf file flag -- make backup single file
     parser.add_argument("-f", "--file", action="store_true")
     
     # Read arguments from command line
@@ -125,9 +123,12 @@ def getting_args():
     erase = False
     if args.erase:
         erase = True
-    return dirpath, port, ip, erase, send, error
+    file = False
+    if args.file:
+        file = True
+    return dirpath, port, ip, erase, send, file, error
 try:
-    zdirpath, zport, zip, zerase,zsend, error  = getting_args()
+    zdirpath, zport, zip, zerase,zsend, zfile, error  = getting_args()
     if error:
         raise ValueError(f"invalid IP address {zip}")
         exit
