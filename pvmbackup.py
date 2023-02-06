@@ -38,18 +38,21 @@ def check7z(osid):
 #//TODO check if port is open to connect by ssh
 def check_port(ip,port):
     #checkin if port is open on IP address
-    ssh_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+   
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1)
+        s.connect((ip, port))
+        s.settimeout(None)
+        print(f"Port {port} is open")
+        result=True
+        s.close()
+    except socket.error:
+        print(f"Port {port} closed.")
+        result=False
 
-    location = (ip, port)
-    result_of_check = ssh_socket.connect_ex(location)
-
-    if result_of_check == 0:
-        print("Port is open")
-        result= True
-    else:
-        print("Port is not open")
-        result = False
-    ssh_socket.close()
+        
+    
     return result
 
 #//TODO create send archive
@@ -134,8 +137,10 @@ print(f"virtual machnes directory list:\n{pvmlist}")
 print(f"Operating system: {check_os()[0]}")
 
 print(f"Archiver path: {check7z(check_os()[0])}")
-
-
-check_port("185.20.54.8",999)
-
+port=999
+ip="185.20.54.8"
+if (check_port(ip,port)):
+    print(f"Port {port} is open on {ip}")
+else:
+    print(f"Port {port} is closed on {ip}")
 
