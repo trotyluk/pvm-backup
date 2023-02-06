@@ -9,6 +9,7 @@ import re
 import sys
 import shutil
 import platform
+import socket
 
 #//TODO check operating system
 def check_os():
@@ -34,8 +35,23 @@ def check7z(osid):
     path7z = shutil.which(cmd)
     return path7z
 
-
 #//TODO check if port is open to connect by ssh
+def check_port(ip,port):
+    #checkin if port is open on IP address
+    ssh_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    location = (ip, port)
+    result_of_check = ssh_socket.connect_ex(location)
+
+    if result_of_check == 0:
+        print("Port is open")
+        result= True
+    else:
+        print("Port is not open")
+        result = False
+    ssh_socket.close()
+    return result
+
 #//TODO create send archive
 #//TODO create make log
 #//TODO create remove archives
@@ -120,6 +136,6 @@ print(f"Operating system: {check_os()[0]}")
 print(f"Archiver path: {check7z(check_os()[0])}")
 
 
-
+check_port("185.20.54.8",999)
 
 
