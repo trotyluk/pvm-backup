@@ -63,15 +63,17 @@ def getting_args():
     # Python program to demonstrate
     # command line arguments
     # Initialize parser
-    del_flag =''
+    
     parser = argparse.ArgumentParser()
     # Adding optional argument
     parser.add_argument("-d", "--dirpath")
     parser.add_argument("-p", "--port", type=int)
     parser.add_argument("-i", "--ip", type=str)
     parser.add_argument("-e", "--erase", action="store_true")
+    parser.add_argument("-s", "--send", action="store_true")
     # Read arguments from command line
     args = parser.parse_args()
+    send=False
     if args.port:
         port= int(args.port)
     else:
@@ -80,20 +82,28 @@ def getting_args():
         dirpath=args.dirpath
     else:
         dirpath='.'
+    if args.send:
+        send = True
+        
     if args.ip:
         ip = args.ip
         if checkIP(args.ip):
             error = False
+            
         else:
             error=True
+            ip='None'
+            
     else:
-        ip = '192.168.18.28'
+        ip='None'
+        send = False
+        error=False
     erase = False
     if args.erase:
         erase = True
-    return dirpath, port, ip, erase, error
+    return dirpath, port, ip, erase, send, error
 try:
-    zdirpath, zport, zip, zerase,error  = getting_args()
+    zdirpath, zport, zip, zerase,zsend, error  = getting_args()
     if error:
         raise ValueError(f"invalid IP address {zip}")
         exit
@@ -101,13 +111,13 @@ except ValueError as e:
     print(e)
     sys.exit('max address = 255.255.255.255')
     
-print(f"zdirpath = {zdirpath}\nzport = {zport}\nzip = {zip}\nzerase = {zerase}")
+print(f"zdirpath = {zdirpath}\nzport = {zport}\nzip = {zip}\nzerase = {zerase}\n{zsend}")
 pvmlist= fnmatch.filter(os.listdir('.'), '*.pvm')
-print(pvmlist)
 
-print(check_os()[0])
+print(f"virtual machnes directory list:\n{pvmlist}")
+print(f"Operating system: {check_os()[0]}")
 
-print(check7z(check_os()[0]))
+print(f"Archiver path: {check7z(check_os()[0])}")
 
 
 
