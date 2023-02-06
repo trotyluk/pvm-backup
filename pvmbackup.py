@@ -24,7 +24,6 @@ def check_os():
     # return configuration in the list format
     # [system,node,release,version,machine,processor]
     return config
-  
     
 #//TODO check if 7z exists
 def check7z(osid):
@@ -38,7 +37,6 @@ def check7z(osid):
 #//TODO check if port is open to connect by ssh
 def check_port(ip,port):
     #checkin if port is open on IP address
-   
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(1)
@@ -85,11 +83,18 @@ def getting_args():
     
     parser = argparse.ArgumentParser()
     # Adding optional argument
+    # addind path to scan
     parser.add_argument("-d", "--dirpath")
+    # adding port
     parser.add_argument("-p", "--port", type=int)
+    # adding IP address
     parser.add_argument("-i", "--ip", type=str)
+    # adding erase flag -- erase local backups after transfer
     parser.add_argument("-e", "--erase", action="store_true")
+    # transfer backup to specified location
     parser.add_argument("-s", "--send", action="store_true")
+    parser.add_argument("-f", "--file", action="store_true")
+    
     # Read arguments from command line
     args = parser.parse_args()
     send=False
@@ -137,7 +142,7 @@ print(f"virtual machnes directory list:\n{pvmlist}")
 print(f"Operating system: {check_os()[0]}")
 
 print(f"Archiver path: {check7z(check_os()[0])}")
-port=999
+port=zport
 ip="185.20.54.8"
 if (check_port(ip,port)):
     print(f"Port {port} is open on {ip}")
