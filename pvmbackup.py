@@ -137,16 +137,12 @@ def vm_dir_validation(cwd,filename,single_flag):
     if filename == "." and single_flag == False:
         #compress all vm directories in current directory
         pvmlist= fnmatch.filter(os.listdir(filename), "*.pvm")
-        vmlist = fnmatch.filter(os.listdir(filename), "*.vmwarevm")
+        pvmlist.extend(fnmatch.filter(os.listdir(filename), "*.vmwarevm"))
         if len(pvmlist)>0:
             for pvmname in pvmlist:
                 #create_archve(pvmname)
                 print(f"creating {pvmname}")
-        if len(vmlist)>0:
-            for vmname in vmlist:
-                #create_archve(vmname)
-                print(f"creating {vmname}")
-                #pvmlist= fnmatch.filter(os.listdir('.'), vm_ext)
+        return pvmlist
     else:
         full_path = os.path.join(cwd,filename)
         print(full_path)
@@ -159,6 +155,7 @@ def vm_dir_validation(cwd,filename,single_flag):
                         print("it is vm")
                         #create_archve(filename)
                         print(f"Created {filename}.7z")
+                        return filename
                     else:
                         print("it is not vm")
                 else:
@@ -171,16 +168,13 @@ def vm_dir_validation(cwd,filename,single_flag):
             os.chdir(full_path)
             print(f"nowy katalog roboczy {os.getcwd()}")
             pvmlist= fnmatch.filter(os.listdir(full_path), "*.pvm")
-            vmlist = fnmatch.filter(os.listdir(full_path), "*.vmwarevm")
+            pvmlist.extend(fnmatch.filter(os.listdir(full_path), "*.vmwarevm"))
             if len(pvmlist)>0:
                 for pvmname in pvmlist:
                     #create_archve(pvmname)
                     print(f"creating {pvmname}")
-            if len(vmlist)>0:
-                for vmname in vmlist:
-                    #create_archve(vmname)
-                    print(f"creating {vmname}")
-                    #pvmlist= fnmatch.filter(os.listdir('.'), vm_ext)
+            return pvmlist
+                    
 
 try:
     zdirpath, zport, zip, zerase, zsend, zfile, error  = getting_args()
@@ -192,20 +186,22 @@ except ValueError as e:
     sys.exit('max address = 255.255.255.255')
 
 start_dir = os.getcwd()
+print(f"start_dir = {start_dir}")
 print(f"zdirpath = {zdirpath}\nzport = {zport}\nzip = {zip}\nzerase = {zerase}\nzsend = {zsend}\nzfile = {zfile}")
 print(f"error = {error}")
 if zdirpath != "#" and zfile == "#":
     print(f"Compress all vm directories in {zdirpath} directory")
     s_flag = False
-    vm_dir_validation(start_dir, zdirpath, s_flag)
+    vm7zlist=vm_dir_validation(start_dir, zdirpath, s_flag)
 if zdirpath == "#" and zfile != "#":
     s_flag = True
     print(f"compress {zfile} directory")
+    vm7zlist=vm_dir_validation(start_dir, zfile, s_flag)
 if zdirpath == "#" and zfile == "#":
     zdirpath = '.'
     s_flag = False
     print("compress all vm directories in current directory")
-    vm_dir_validation(start_dir, zdirpath, s_flag)
+    vm7zlist=vm_dir_validation(start_dir, zdirpath, s_flag)
 
 #pvmlist= fnmatch.filter(os.listdir('.'), vm_ext)
 
