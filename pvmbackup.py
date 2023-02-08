@@ -10,6 +10,7 @@ import sys
 import shutil
 import platform
 import socket
+import pathlib
 
 # check operating system
 def check_os():
@@ -49,6 +50,10 @@ def check_port(ip,port):
     return result
 
 #//TODO create send archive
+def send_archive(archive_name):
+    
+    print("Sending archive")
+    
 #//TODO create make log
 #//TODO create remove archives
 #//TODO create check archive
@@ -88,8 +93,8 @@ def getting_args():
     parser.add_argument("-s", "--send", action="store_true")
     # adding file flag -- make backup single file
     parser.add_argument("-f", "--filename")
-    # adding vmware flag to achive wmware vm
-    parser.add_argument("-v", "--vmware", action="store_true")
+  
+    
     
     
     # Read arguments from command line
@@ -125,60 +130,82 @@ def getting_args():
         file = args.filename
     else:
         file = "#"
-    if args.vmware:
-        vmware_s = True
-    else:
-        vmware_s = False
-    return dirpath, port, ip, erase, send, file, vmware_s, error
+    return dirpath, port, ip, erase, send, file, error
+
 #//TODO correct vm_dir_validation check directory extention accordint to vm_selector
-def vm_dir_validation(cwd,filename,vm_selector):
-    if filename != "#":
-        
+def vm_dir_validation(cwd,filename,single_flag):      
+    if filename == "." and single_flag == False:
+        #compress all vm directories in current directory
+        pvmlist= fnmatch.filter(os.listdir(filename), "*.pvm")
+        vmlist = fnmatch.filter(os.listdir(filename), "*.vmwarevm")
+        if len(pvmlist)>0:
+            for pvmname in pvmlist:
+                #create_archve(pvmname)
+                print(f"creating {pvmname}")
+        if len(vmlist)>0:
+            for vmname in vmlist:
+                #create_archve(vmname)
+                print(f"creating {vmname}")
+                #pvmlist= fnmatch.filter(os.listdir('.'), vm_ext)
+    else:
         full_path = os.path.join(cwd,filename)
         print(full_path)
-        if (os.path.exists(full_path)):
-            if (os.path.isdir(full_path)):
-                #//TODO change test according to vm_selector
-                if vm_selector == "pvm":
-                    sel_name = "config.pvs"
+        if single_flag == True:
+            if (os.path.exists(full_path)):
+                if (os.path.isdir(full_path)):
+                    f_ext = pathlib.Path(full_path).suffix
+                    print(f_ext)
+                    if f_ext =='.pvm'or f_ext=='.vmwarevm':
+                        print("it is vm")
+                        #create_archve(filename)
+                        print(f"Created {filename}.7z")
+                    else:
+                        print("it is not vm")
                 else:
-                    sel_name = filename+"vmx"
-                if (os.path.exists(os.path.join(full_path,sel_name))):
-                    print(f"{sel_name} already exists")
-                else:
-                    print(f"{sel_name} not exist")
-            # check if *hdd exists in the *pvm directory   
-    else:
-        print("no file")
-    
-    
+                    print(f"{full_path} is not a directory")
+                    sys.exit()
+            else:
+                print(f"{full_path} not exists")
+                sys.exit()
+        else:
+            os.chdir(full_path)
+            print(f"nowy katalog roboczy {os.getcwd()}")
+            pvmlist= fnmatch.filter(os.listdir(full_path), "*.pvm")
+            vmlist = fnmatch.filter(os.listdir(full_path), "*.vmwarevm")
+            if len(pvmlist)>0:
+                for pvmname in pvmlist:
+                    #create_archve(pvmname)
+                    print(f"creating {pvmname}")
+            if len(vmlist)>0:
+                for vmname in vmlist:
+                    #create_archve(vmname)
+                    print(f"creating {vmname}")
+                    #pvmlist= fnmatch.filter(os.listdir('.'), vm_ext)
 
 try:
-    zdirpath, zport, zip, zerase, zsend, zfile, zvmware, error  = getting_args()
+    zdirpath, zport, zip, zerase, zsend, zfile, error  = getting_args()
     if error:
         raise ValueError(f"invalid IP address {zip}")
         exit
 except ValueError as e:
     print(e)
     sys.exit('max address = 255.255.255.255')
-# selector parallels/vmware    
-if zvmware:
-    vm_selector = "vmware" 
-else:
-    vm_selector = "pvm"
 
 start_dir = os.getcwd()
 print(f"zdirpath = {zdirpath}\nzport = {zport}\nzip = {zip}\nzerase = {zerase}\nzsend = {zsend}\nzfile = {zfile}")
-print(f"zvmware = {zvmware}\nerror = {error}")
+print(f"error = {error}")
 if zdirpath != "#" and zfile == "#":
     print(f"Compress all vm directories in {zdirpath} directory")
+    s_flag = False
+    vm_dir_validation(start_dir, zdirpath, s_flag)
 if zdirpath == "#" and zfile != "#":
+    s_flag = True
     print(f"compress {zfile} directory")
 if zdirpath == "#" and zfile == "#":
     zdirpath = '.'
+    s_flag = False
     print("compress all vm directories in current directory")
-
-    
+    vm_dir_validation(start_dir, zdirpath, s_flag)
 
 #pvmlist= fnmatch.filter(os.listdir('.'), vm_ext)
 
@@ -194,7 +221,7 @@ else:
     print(f"Port {port} is closed on {ip}")
 
 print(start_dir)
-vm_dir_validation(start_dir, zfile, vm_selector)
+
 
 # //TODO - if zfile True dirpath have one directory to archive
 # //TODO - if zfile False dirpath have directory to archive all pvm directories
