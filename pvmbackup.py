@@ -50,9 +50,10 @@ def check_port(ip,port):
     return result
 
 #//TODO create send archive
-def send_archive(archive_name):
-    
-    print("Sending archive")
+def send_archive(archive_name,ip_address,port):
+    # sending archive with scp to adress on the port
+    # chec if can be sent
+    print(f"Sending archive {archive_name} to {ip_address} on port {port}")
     
 #//TODO create make log
 #//TODO create remove archives
